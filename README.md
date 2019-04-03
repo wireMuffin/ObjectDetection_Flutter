@@ -1,6 +1,6 @@
 # version_0_1
 
-##NOT COMPLETED
+## NOT COMPLETED
 
 A Flutter project that plays specific video when the app detected the corresponding object (by reading captured image from ESP32).
 
@@ -17,7 +17,7 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.io/docs), which offers tutorials, 
 samples, guidance on mobile development, and a full API reference.
 
-##Really Getting Started
+## Really Getting Started
 
 #### pubspec.yml
 
