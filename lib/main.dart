@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
 import 'videoRoute.dart';
-//import 'dart:typed_data';
+import 'dart:typed_data';
 
 //import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -62,31 +62,49 @@ class _MyHomePageState extends State<MyHomePage> {
     _picCounter++;
 
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
-    /*im.Image image = im.decodeImage(file.readAsBytesSync());
-    int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
+    im.Image image = im.decodeImage(file.readAsBytesSync());
+    /*int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
     int red = pixelInfo & 0xff;
     int blue = (pixelInfo>>16) & 0xff;
     int green = (pixelInfo>>8) & 0xff;*/
 
     String res = await Tflite.loadModel(
-        model: "assets/mobilenet_v1_1.0_224.tflite",
-        labels: "assets/labels.txt",
+        model: "assets/yolov2_tiny.tflite",
+        labels: "assets/yolov2_tiny.txt",
         numThreads: 1 // defaults to 1
     );
 
     print(res);
-    print("above");
 
-    var recognitions = await Tflite.runModelOnBinary(
-        binary: file.readAsBytesSync(),// required
-        numResults: 6,    // defaults to 5
-        threshold: 0.05,  // defaults to 0.1
+    Uint8List imageToByteListFloat32(
+        im.Image image, int inputSize, double mean, double std) {
+      var convertedBytes = Float32List(1 * inputSize * inputSize * 3);
+      var buffer = Float32List.view(convertedBytes.buffer);
+      int pixelIndex = 0;
+      for (var i = 0; i < inputSize; i++) {
+        for (var j = 0; j < inputSize; j++) {
+          var pixel = image.getPixel(j, i);
+          buffer[pixelIndex++] = (im.getRed(pixel) - mean) / std;
+          buffer[pixelIndex++] = (im.getGreen(pixel) - mean) / std;
+          buffer[pixelIndex++] = (im.getBlue(pixel) - mean) / std;
+        }
+      }
+      return convertedBytes.buffer.asUint8List();
+    }
+
+    var recognitions = await Tflite.detectObjectOnBinary(
+        binary: imageToByteListFloat32(image, 416, 0.0, 255.0), // required
+        model: "YOLO",
+        threshold: 0.3,       // defaults to 0.1
+        numResultsPerClass: 2,// defaults to 5
+        blockSize: 32,        // defaults to 32
+        numBoxesPerBlock: 5,  // defaults to 5
     );
 
     print("here");
     print(recognitions);
 
-    await Tflite.close();
+    //await Tflite.close();
 
     setState(() {
       _image = Image.network(_picUrl + _picCounter.toString());
@@ -145,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          _image,
+          //_image,
           Center(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
