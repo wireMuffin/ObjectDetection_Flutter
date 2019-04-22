@@ -2,16 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
 import 'videoRoute.dart';
-import 'package:flutter/services.dart';
+import 'dart:typed_data';
 
-/*import 'package:http/http.dart';
-import 'package:image_picker_saver/image_picker_saver.dart' as ips;
-import 'dart:io';*/
+
+//import 'package:http/http.dart' as http;
+//import 'package:image_picker_saver/image_picker_saver.dart' as ips;
+//import 'dart:io';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:tflite/tflite.dart';
 
 void main() => runApp(MyApp());
 //This is the entrance of the whole program
 
 class MyApp extends StatelessWidget {
+
+/*  Future<String> res = Tflite.loadModel(
+  model: "assets/yolov2_tiny.tflite",
+  labels: "assets/yolov2_tiny.txt",
+  );*/
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -40,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isSwitched = true;
 
   var _picCounter = 0;
-  var _picUrl = 'http://192.168.31.237/capture?_cb=1555929991989';
-  var _image = Image.network('http://192.168.31.237/capture?_cb=1555929991989');
+  var _picUrl = 'http://192.168.31.237/capture?_cb=1555932915322?';
+  var _image = Image.network('http://192.168.31.237/capture?_cb=1555932915322');
 
   String path (bool isSwi){
     if(isSwi)
@@ -58,13 +67,39 @@ class _MyHomePageState extends State<MyHomePage> {
   //this is called when we need to update the text field on top of the App.
 
   void _cameraSelection() async{
-    imageCache.clear();
     _picCounter++;
+
+    var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
+    /*im.Image image = im.decodeImage(file.readAsBytesSync());
+    int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
+    int red = pixelInfo & 0xff;
+    int blue = (pixelInfo>>16) & 0xff;
+    int green = (pixelInfo>>8) & 0xff;*/
+
+    String res = await Tflite.loadModel(
+        model: "assets/mobilenet_v1_1.0_224.tflite",
+        labels: "assets/labels.txt",
+        numThreads: 1 // defaults to 1
+    );
+
+    print(res);
+    print("above");
+
+    var recognitions = await Tflite.runModelOnBinary(
+        binary: file.readAsBytesSync(),// required
+        numResults: 6,    // defaults to 5
+        threshold: 0.05,  // defaults to 0.1
+    );
+
+    print("here");
+    print(recognitions);
+
+    await Tflite.close();
+
     setState(() {
       _image = Image.network(_picUrl + _picCounter.toString());
+      //_textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString();
     });
-
-    print("here!");
   }
   //this is called when getting an image from a web server, i.e ESP32's http server.
 
@@ -94,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     /*im.Image image = new im.Image(1,1);
     im.fill(image, im.getColor(255, 100, 200));*/
+
     im.Image image = im.decodeImage(imageFile.readAsBytesSync());
     int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
     int red = pixelInfo & 0xff;
