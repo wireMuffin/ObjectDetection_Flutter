@@ -20,6 +20,11 @@ class _VideoRouteState extends State<VideoRoute> {
           Navigator.pop(context);
         }
       })
+      /*
+      this listener listen for the playing status of the video
+      i.e when the video is not playing(the video is ended or paused(not provided in this route))
+      this route will be pop out of the route stack, i.e. return to the main route.
+      */
       ..initialize().then((_) {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
