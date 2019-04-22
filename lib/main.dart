@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
 import 'videoRoute.dart';
-import 'dart:typed_data';
+//import 'dart:typed_data';
 
-
-//import 'package:http/http.dart' as http;
-//import 'package:image_picker_saver/image_picker_saver.dart' as ips;
 //import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:tflite/tflite.dart';
@@ -15,11 +12,6 @@ void main() => runApp(MyApp());
 //This is the entrance of the whole program
 
 class MyApp extends StatelessWidget {
-
-/*  Future<String> res = Tflite.loadModel(
-  model: "assets/yolov2_tiny.tflite",
-  labels: "assets/yolov2_tiny.txt",
-  );*/
 
   @override
   Widget build(BuildContext context) {
