@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
-import 'videoRoute.dart';
-import 'dart:typed_data';
-
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:tflite/tflite.dart';
+import 'videoRoute.dart';
+import 'dart:typed_data';
 
 void main() => runApp(MyApp());
 //This is the entrance of the whole program
@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([]);
     return new MaterialApp(
       title: 'Object Detection App',
       theme: new ThemeData(
@@ -36,12 +37,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _textAppState = "Welcome!";
+  var _textAppState = " ";
   bool isSwitched = true;
-
+  var _detectedClass = "Cannot find any match";
   var _picCounter = 0;
-  var _picUrl = 'http://192.168.31.237/capture?_cb=1555932915322?';
-  var _image = Image.network('http://192.168.31.237/capture?_cb=1555932915322');
+  var _picUrl = 'http://192.168.31.1/capture?_cb=1555932915322?';
+  var _image = Image.network('http://192.168.31.1/capture?_cb=1555932915322?');
 
   String path (var obj){
     if(obj == "mouse")
@@ -58,12 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _changeTextState() {
     setState(() {
-      _textAppState = "Grey Camera:  External Camera\nBlue Camera: Internal Camera";
+      _textAppState = "You have not yet capture any image";
     });
   }
   //this is called when we need to update the text field on top of the App.
 
-  void _cameraSelection() async{
+  void _externalCameraSelection() async{
     _picCounter++;
 
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
@@ -112,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   //this is called when getting an image from a web server, i.e ESP32's http server.
 
-  void _tempCameraSelection() async{
+  void _internalCameraSelection() async{
     final imageFile = await ImagePicker.pickImage(
         source: ImageSource.camera,
         maxWidth: 100.0,
@@ -159,19 +160,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //print(recognitions.isEmpty);
 
-    setState(() {
-      if (recognitions.isEmpty){
-        _textAppState = "Cannot find any match.";
-      } else {
-        _textAppState = recognitions[0]['detectedClass'].toString();
-      }
-    });
+    if (recognitions.isEmpty){
+      _detectedClass = "Cannot find any match";
+    } else {
+      _detectedClass = recognitions[0]['detectedClass'].toString();
+    }
 
     Navigator.push( context,
         new MaterialPageRoute(builder: (context) {
-          return new VideoRoute(path: path(_textAppState));//VideoRoute() is in videoRoute.dart
+          return new VideoRoute(path: path(_detectedClass), detectedClass: _detectedClass,);//VideoRoute() is in videoRoute.dart
         })
     );
+
+    setState(() {
+      _textAppState = "";
+    });
   }
   //this is called when capturing an image using the device's own camera.
 
@@ -186,21 +189,65 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text(
                     '$_textAppState',
                   ),
+                Column(
+                  children: <Widget>[
+                    TextField(
+                      decoration: InputDecoration(
+                          labelText: "IP Address",
+                          hintText: "e.g 192.168.31.1",
+                          prefixIcon: Icon(Icons.cloud)
+                      ),
+                      onChanged: (t){_picUrl = 'http://'+ t +'/capture?_cb=';
+                      print(_picUrl);},
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                          labelText: "Key Number",
+                          hintText: "e.g 1555932915322",
+                          prefixIcon: Icon(Icons.sort)
+                      ),
+                      obscureText: true,
+                      onChanged: (t){_picUrl = _picUrl.substring(0, _picUrl.indexOf("=")+1) + t;
+                      print(_picUrl);},
+                    ),
+                  ],
+                ),
+                  Padding(padding: EdgeInsets.all(16.0),),
                   FlatButton(
-                    child: Icon(Icons.camera_alt),
-                    textColor: Colors.blueGrey,
-                    onPressed: _cameraSelection,
+                    child: Icon(Icons.linked_camera),
+                    textColor: Colors.blue,
+                    onPressed: _externalCameraSelection,
                   ),
                   FlatButton(
-                    child: Icon(Icons.camera_alt),
+                    child: Icon(Icons.photo_camera),
                     textColor: Colors.blue,
-                    onPressed: _tempCameraSelection,
+                    onPressed: _internalCameraSelection,
                   ),
                 ]
             ),
           ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _changeTextState,
+        onPressed: (){
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text("Help"),
+                content: new Text("The wireless camera button is for external camera (i.e ESP32's camera).\n"
+                    "The second camera button is for this device's internal camera."),
+                actions: <Widget>[
+                  // usually buttons at the bottom of the dialog
+                  new FlatButton(
+                    child: new Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );},
         child: Icon(Icons.help),
       ),
     );
