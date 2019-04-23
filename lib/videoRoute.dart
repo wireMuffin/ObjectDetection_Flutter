@@ -52,6 +52,7 @@ class _VideoRouteState extends State<VideoRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: new AppBar(
+        centerTitle: true,
         title: Text(widget.detectedClass),
       ),
       body: Center(
@@ -74,7 +75,7 @@ class _VideoRouteState extends State<VideoRoute> {
               builder: (BuildContext context) {
                 // return object of type Dialog
                 return AlertDialog(
-                  title: new Text("Information of " + widget.detectedClass),
+                  title: new Text(widget.detectedClass == "Cannot find any match" ? "Sorry" : "Information of " + widget.detectedClass),
                   content: new Text(data),
                   actions: <Widget>[
                     // usually buttons at the bottom of the dialog

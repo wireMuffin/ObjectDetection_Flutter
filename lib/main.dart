@@ -7,6 +7,8 @@ import 'package:tflite/tflite.dart';
 import 'videoRoute.dart';
 import 'dart:typed_data';
 
+const _supportedList = ["book", "cell phone", "mouse", "remote"];
+
 void main() => runApp(MyApp());
 //This is the entrance of the whole program
 
@@ -53,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return "assets/cellphone.mp4";
     if(obj == "book")
       return "assets/book.mp4";
-    return "assets/notfound.mp4";
+    return "assets/Cannot find any match.mp4";
   }
   //this is called when determining which video should be played when videoRoute is created.
 
@@ -70,13 +72,16 @@ class _MyHomePageState extends State<MyHomePage> {
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
     im.Image image = im.decodeImage(file.readAsBytesSync());
 
+
+    setState(() {
+      _textAppState = "Now Loading...";
+    });
+
     String res = await Tflite.loadModel(
         model: "assets/yolov2_tiny.tflite",
         labels: "assets/yolov2_tiny.txt",
         numThreads: 1 // defaults to 1
     );
-
-    print(res);
 
     Uint8List imageToByteListFloat32(
         im.Image image, int inputSize, double mean, double std) {
@@ -103,21 +108,32 @@ class _MyHomePageState extends State<MyHomePage> {
         numBoxesPerBlock: 5,  // defaults to 5
     );
 
-    print("here");
-    print(recognitions);
+    _detectedClass = "Cannot find any match";
+    for(int i = 0; i < _supportedList.length; i++){
+      if (recognitions[0]['detectedClass'].toString() == _supportedList[i].toString()){
+        _detectedClass = recognitions[0]['detectedClass'].toString();
+        break;
+      }
+    }
+
+    Navigator.push( context,
+        new MaterialPageRoute(builder: (context) {
+          return new VideoRoute(path: path(_detectedClass), detectedClass: _detectedClass,);//VideoRoute() is in videoRoute.dart
+        })
+    );
 
     setState(() {
-      _image = Image.network(_picUrl + _picCounter.toString());
-      //_textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString();
+      _textAppState = "";
     });
+
   }
   //this is called when getting an image from a web server, i.e ESP32's http server.
 
   void _internalCameraSelection() async{
     final imageFile = await ImagePicker.pickImage(
         source: ImageSource.camera,
-        maxWidth: 100.0,
-        maxHeight: 100.0
+        maxWidth: 400.0,
+        maxHeight: 300.0
     );
 
     setState(() {
@@ -131,7 +147,6 @@ class _MyHomePageState extends State<MyHomePage> {
         labels: "assets/yolov2_tiny.txt",
         numThreads: 1 // defaults to 1
     );
-
 
     Uint8List imageToByteListFloat32(
         im.Image image, int inputSize, double mean, double std) {
@@ -158,12 +173,12 @@ class _MyHomePageState extends State<MyHomePage> {
       numBoxesPerBlock: 5,  // defaults to 5
     );
 
-    //print(recognitions.isEmpty);
-
-    if (recognitions.isEmpty){
-      _detectedClass = "Cannot find any match";
-    } else {
-      _detectedClass = recognitions[0]['detectedClass'].toString();
+    _detectedClass = "Cannot find any match";
+    for(int i = 0; i < _supportedList.length; i++){
+      if (recognitions[0]['detectedClass'] == _supportedList[i]){
+        _detectedClass = recognitions[0]['detectedClass'].toString();
+        break;
+      }
     }
 
     Navigator.push( context,
