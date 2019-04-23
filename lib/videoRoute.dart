@@ -40,14 +40,6 @@ class _VideoRouteState extends State<VideoRoute> {
     _controller.play();
   }
 
-
-  /*_controller.value.initialized
-  ? AspectRatio(
-  aspectRatio: _controller.value.aspectRatio,
-  child: VideoPlayer(_controller),
-  )
-      : Container(),*/
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

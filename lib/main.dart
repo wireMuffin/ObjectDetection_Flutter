@@ -70,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _picCounter++;
 
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
+    //_image = Image.network(_picUrl + _picCounter.toString())
     im.Image image = im.decodeImage(file.readAsBytesSync());
 
 
@@ -249,8 +250,8 @@ class _MyHomePageState extends State<MyHomePage> {
               // return object of type Dialog
               return AlertDialog(
                 title: new Text("Help"),
-                content: new Text("The wireless camera button is for external camera (i.e ESP32's camera).\n"
-                    "The second camera button is for this device's internal camera."),
+                content: new Text("The top wireless camera button is for external camera (i.e ESP32's camera).\n"
+                    "The below camera button is for this device's internal camera."),
                 actions: <Widget>[
                   // usually buttons at the bottom of the dialog
                   new FlatButton(
@@ -268,6 +269,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
-
