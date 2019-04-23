@@ -45,9 +45,9 @@ class _VideoRouteState extends State<VideoRoute> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pop(context);
+            //Navigator.pop(context);
           },
-          child: Icon(Icons.arrow_back_ios),
+          child: Icon(Icons.camera_alt),
 
         ),
     /*floatingActionButton: FloatingActionButton(

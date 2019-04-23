@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
 import 'videoRoute.dart';
 import 'dart:typed_data';
+import 'package:video_player/video_player.dart';
 
 //import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -44,10 +45,16 @@ class _MyHomePageState extends State<MyHomePage> {
   var _picUrl = 'http://192.168.31.237/capture?_cb=1555932915322?';
   var _image = Image.network('http://192.168.31.237/capture?_cb=1555932915322');
 
-  String path (bool isSwi){
-    if(isSwi)
-      return "assets/bunny.mp4";
-    return "assets/bunnyShort.mp4";
+  String path (var obj){
+    if(obj == "mouse")
+      return "assets/mouse.mp4";
+    if(obj == "remote")
+      return "assets/remote.mp4";
+    if(obj == "cell phone")
+      return "assets/cellphone.mp4";
+    if(obj == "book")
+      return "assets/book.mp4";
+    return "assets/notfound.mp4";
   }
   //this is called when determining which video should be played when videoRoute is created.
 
@@ -63,10 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
     im.Image image = im.decodeImage(file.readAsBytesSync());
-    /*int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
-    int red = pixelInfo & 0xff;
-    int blue = (pixelInfo>>16) & 0xff;
-    int green = (pixelInfo>>8) & 0xff;*/
 
     String res = await Tflite.loadModel(
         model: "assets/yolov2_tiny.tflite",
@@ -95,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var recognitions = await Tflite.detectObjectOnBinary(
         binary: imageToByteListFloat32(image, 416, 0.0, 255.0), // required
         model: "YOLO",
-        threshold: 0.3,       // defaults to 0.1
+        threshold: 0.1,       // defaults to 0.1
         numResultsPerClass: 2,// defaults to 5
         blockSize: 32,        // defaults to 32
         numBoxesPerBlock: 5,  // defaults to 5
@@ -104,8 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
     print("here");
     print(recognitions);
 
-    //await Tflite.close();
-
     setState(() {
       _image = Image.network(_picUrl + _picCounter.toString());
       //_textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString();
@@ -113,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   //this is called when getting an image from a web server, i.e ESP32's http server.
 
-  void _gallerySelection() async{
+  /*void _gallerySelection() async{
     final imageFile = await ImagePicker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 100.0,
@@ -129,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString() + ") (gallery).";
     });
   }
-  //this is called when selecting an image from the built-in library.
+  //this is called when selecting an image from the built-in library.*/
 
   void _tempCameraSelection() async{
     final imageFile = await ImagePicker.pickImage(
@@ -137,18 +138,60 @@ class _MyHomePageState extends State<MyHomePage> {
         maxWidth: 100.0,
         maxHeight: 100.0
     );
-    /*im.Image image = new im.Image(1,1);
-    im.fill(image, im.getColor(255, 100, 200));*/
-
-    im.Image image = im.decodeImage(imageFile.readAsBytesSync());
-    int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
-    int red = pixelInfo & 0xff;
-    int blue = (pixelInfo>>16) & 0xff;
-    int green = (pixelInfo>>8) & 0xff;
 
     setState(() {
-      _textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString() + ") (camera).";
+      _textAppState = "Now Loading...";
     });
+
+    im.Image image = im.decodeImage(imageFile.readAsBytesSync());
+
+    String res = await Tflite.loadModel(
+        model: "assets/yolov2_tiny.tflite",
+        labels: "assets/yolov2_tiny.txt",
+        numThreads: 1 // defaults to 1
+    );
+
+
+    Uint8List imageToByteListFloat32(
+        im.Image image, int inputSize, double mean, double std) {
+      var convertedBytes = Float32List(1 * inputSize * inputSize * 3);
+      var buffer = Float32List.view(convertedBytes.buffer);
+      int pixelIndex = 0;
+      for (var i = 0; i < inputSize; i++) {
+        for (var j = 0; j < inputSize; j++) {
+          var pixel = image.getPixel(j, i);
+          buffer[pixelIndex++] = (im.getRed(pixel) - mean) / std;
+          buffer[pixelIndex++] = (im.getGreen(pixel) - mean) / std;
+          buffer[pixelIndex++] = (im.getBlue(pixel) - mean) / std;
+        }
+      }
+      return convertedBytes.buffer.asUint8List();
+    }
+
+    var recognitions = await Tflite.detectObjectOnBinary(
+      binary: imageToByteListFloat32(image, 416, 0.0, 255.0), // required
+      model: "YOLO",
+      threshold: 0.1,       // defaults to 0.1
+      numResultsPerClass: 2,// defaults to 5
+      blockSize: 32,        // defaults to 32
+      numBoxesPerBlock: 5,  // defaults to 5
+    );
+
+    //print(recognitions.isEmpty);
+
+    setState(() {
+      if (recognitions.isEmpty){
+        _textAppState = "Cannot find any match.";
+      } else {
+        _textAppState = recognitions[0]['detectedClass'].toString();
+      }
+    });
+
+    Navigator.push( context,
+        new MaterialPageRoute(builder: (context) {
+          return new VideoRoute(path: path(_textAppState));//VideoRoute() is in videoRoute.dart
+        })
+    );
   }
   //this is called when capturing an image using the device's own camera.
 
@@ -163,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          //_image,
+          _image,
           Center(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -173,14 +216,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   FlatButton(
                     child: Icon(Icons.camera_alt),
-                    textColor: Colors.grey,
+                    textColor: Colors.red,
                     onPressed: _cameraSelection,
                   ),
-                  FlatButton(
+                  /*FlatButton(
                     child: Icon(Icons.photo_album),
                     textColor: Colors.blue,
                     onPressed: _gallerySelection,
-                  ),
+                  ),*/
                   FlatButton(
                     child: Icon(Icons.camera_alt),
                     textColor: Colors.blue,
@@ -188,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   FlatButton(
                     child: Icon(Icons.video_library),
-                    textColor: Colors.blue,
+                    textColor: Colors.greenAccent,
                     onPressed: () {
                       Navigator.push( context,
                           new MaterialPageRoute(builder: (context) {
