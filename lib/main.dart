@@ -3,9 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as im;
 import 'videoRoute.dart';
 import 'dart:typed_data';
-import 'package:video_player/video_player.dart';
 
-//import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:tflite/tflite.dart';
 
@@ -229,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     textColor: Colors.blue,
                     onPressed: _tempCameraSelection,
                   ),
-                  FlatButton(
+                  /*FlatButton(
                     child: Icon(Icons.video_library),
                     textColor: Colors.greenAccent,
                     onPressed: () {
@@ -256,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Text("Long"),
                     ],
-                  ),
+                  ),*/
                 ]
             ),
           ),

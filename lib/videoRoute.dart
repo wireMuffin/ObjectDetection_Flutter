@@ -45,6 +45,7 @@ class _VideoRouteState extends State<VideoRoute> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
+            _controller.pause();
             //Navigator.pop(context);
           },
           child: Icon(Icons.camera_alt),
