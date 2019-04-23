@@ -36,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _textAppState = "You have not yet seleted any image";
+  var _textAppState = "Welcome!";
   bool isSwitched = true;
 
   var _picCounter = 0;
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _changeTextState() {
     setState(() {
-      _textAppState = "You have not yet seleted any image";
+      _textAppState = "Grey Camera:  External Camera\nBlue Camera: Internal Camera";
     });
   }
   //this is called when we need to update the text field on top of the App.
@@ -111,24 +111,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
   //this is called when getting an image from a web server, i.e ESP32's http server.
-
-  /*void _gallerySelection() async{
-    final imageFile = await ImagePicker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 100.0,
-        maxHeight: 100.0);
-    //restrict the size of the image, because decoding binary image file using Flutter in iOS device is very slow.
-    im.Image image = im.decodeImage(imageFile.readAsBytesSync());
-    int pixelInfo = image.getPixel(image.width~/2, image.height~/2);
-    int red = pixelInfo & 0xff;
-    int blue = (pixelInfo>>16) & 0xff;
-    int green = (pixelInfo>>8) & 0xff;
-
-    setState(() {
-      _textAppState = "It is in rgb(" + red.toString() + ", " + green.toString() + ", " + blue.toString() + ") (gallery).";
-    });
-  }
-  //this is called when selecting an image from the built-in library.*/
 
   void _tempCameraSelection() async{
     final imageFile = await ImagePicker.pickImage(
@@ -196,15 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      //appBar is the top bar of the App
-      body: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _image,
+      body:
           Center(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -214,55 +188,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   FlatButton(
                     child: Icon(Icons.camera_alt),
-                    textColor: Colors.red,
+                    textColor: Colors.blueGrey,
                     onPressed: _cameraSelection,
                   ),
-                  /*FlatButton(
-                    child: Icon(Icons.photo_album),
-                    textColor: Colors.blue,
-                    onPressed: _gallerySelection,
-                  ),*/
                   FlatButton(
                     child: Icon(Icons.camera_alt),
                     textColor: Colors.blue,
                     onPressed: _tempCameraSelection,
                   ),
-                  /*FlatButton(
-                    child: Icon(Icons.video_library),
-                    textColor: Colors.greenAccent,
-                    onPressed: () {
-                      Navigator.push( context,
-                          new MaterialPageRoute(builder: (context) {
-                            return new VideoRoute(path: path(isSwitched));//VideoRoute() is in videoRoute.dart
-                          }));
-                    },
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Short"),
-                      Switch(
-                        value: isSwitched,
-                        onChanged: (value) {
-                          setState(() {
-                            isSwitched = value;
-                          });
-                        },
-                        activeTrackColor: Colors.lightBlueAccent,
-                        activeColor: Colors.blue,
-                      ),
-                      Text("Long"),
-                    ],
-                  ),*/
                 ]
             ),
           ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _changeTextState,
-        child: Text("Clear"),
+        child: Icon(Icons.help),
       ),
     );
   }

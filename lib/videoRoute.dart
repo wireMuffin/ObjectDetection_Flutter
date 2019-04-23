@@ -48,21 +48,9 @@ class _VideoRouteState extends State<VideoRoute> {
             _controller.pause();
             //Navigator.pop(context);
           },
-          child: Icon(Icons.camera_alt),
+          child: Icon(Icons.arrow_back_ios),
 
         ),
-    /*floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _controller.value.isPlaying?
-              _controller.pause()
-              : _controller.play();
-            });
-          },
-          child: Icon(
-            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          ),
-        ),*/
     );
     }
 
