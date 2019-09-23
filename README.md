@@ -29,15 +29,15 @@ samples, guidance on mobile development, and a full API reference.
 
 2. Choose Flutter project and change ***[$yourFlutterPath]*** to your path of Flutter SDK, then press Next.
 
-   ![1.FlutterSDKLocation](/Users/kevin/Desktop/Technical_Document/1.FlutterSDKLocation.png)
+   ![1.FlutterSDKLocation](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j6to48fj30x10u0anb.jpg)
 
 3. Change ***[$ProjectName]***, ***[$ProjectLocation]***, ***[$Description]*** and ***[$Organisation]*** into your project name, location of you project, description of your project and your organisation(You can just type anything if you do not have an organisation), then press Finish.
 
-![2.NewProject](/Users/kevin/Desktop/Technical_Document/2.NewProject.png)
+![2.NewProject](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j713ic7j30x10u0dt5.jpg)
 
 3. Now you have your first Flutter project created:
 
-   ![3.FirstFlutterProject](/Users/kevin/Desktop/Technical_Document/3.FirstFlutterProject.png)
+   ![3.FirstFlutterProject](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j7apjorj31b30u0h8p.jpg)
 
    - The green box is your project structure.
    - The blue box is your main working area.
@@ -414,11 +414,11 @@ Create the above `videoRoute.dart` file in `[$ProjectName]/lib`:
 
 Right click on the structure area's `lib` folder, choose New->Dart File.
 
-![4.videoRouteCreation](/Users/kevin/Desktop/Technical_Document/4.videoRouteCreation.png)
 
-Then named the name to `videoRoute` and press OK.
 
-![5.videoRouteNaming](/Users/kevin/Desktop/Technical_Document/5.videoRouteNaming.png)
+![4.videoRouteCreation](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j949ogtj31d90u0h84.jpg)Then named the name to `videoRoute` and press OK.
+
+![5.videoRouteNaming](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j8y486ij30o60c4wh7.jpg)
 
 Modify this `videoRoute.dart` as above.
 
@@ -438,17 +438,17 @@ You can only debug this program with real device, because simulator does not sup
 
 2. Click on the menu in the red circle in IntelliJ:
 
-   ![3.FirstFlutterProject](/Users/kevin/Desktop/Technical_Document/3.FirstFlutterProject.png)
+   ![3.FirstFlutterProject](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j8c9vrej31b30u043e.jpg)
 
 3. Then choose your device:
 
-   ![6.DeviceSelection](/Users/kevin/Desktop/Technical_Document/6.DeviceSelection.png)
+   ![6.DeviceSelection](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j8kwso1j30ke0663zi.jpg)
 
 4. Then click on the run icon in IntelliJ next to the orange circle as shown above.
 
 5. You can now see the debugging information in the green box:
 
-   ![7.Debugging](/Users/kevin/Desktop/Technical_Document/7.Debugging.png)
+   ![7.Debugging](https://tva1.sinaimg.cn/large/006y8mN6gy1g79j8u1bm9j31b30u01kx.jpg)
 
 6. You can now edit the source code and perform **hot reload** by clicking on the lightning button in the red circle above.
 
@@ -458,8 +458,15 @@ You can only debug this program with real device, because simulator does not sup
 
 If you finish all debuging, you can have your mobile App released:
 
-[pictures of releasing]
+1. Goto the path of your project in shell:
 
+   ![Screenshot 2019-04-25 at 21.40.09](https://tva1.sinaimg.cn/large/006y8mN6gy1g79jaa35k0j316c0so10o.jpg)
 
+2. Then input
 
-T.B.C
+   ```
+   flutter clean
+   flutter build apk
+   ```
+
+3. You should have your apk in `[$yourPathOfProject]/build/app/outputs/apk`.

@@ -42,9 +42,9 @@ class _MyHomePageState extends State<MyHomePage> {
   var _textAppState = " ";
   bool isSwitched = true;
   var _detectedClass = "Cannot find any match";
+
   var _picCounter = 0;
-  var _picUrl = 'http://192.168.31.1/capture?_cb=1555932915322?';
-  var _image = Image.network('http://192.168.31.1/capture?_cb=1555932915322?');
+  var _picUrl = 'http://192.168.31.1/capture?_cb=1555932915322?';//this is the URL of the image from the ESP32 web server.
 
   String path (var obj){
     if(obj == "mouse")
@@ -59,18 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   //this is called when determining which video should be played when videoRoute is created.
 
-  void _changeTextState() {
-    setState(() {
-      _textAppState = "You have not yet capture any image";
-    });
-  }
-  //this is called when we need to update the text field on top of the App.
-
   void _externalCameraSelection() async{
     _picCounter++;
 
     var file = await DefaultCacheManager().getSingleFile(_picUrl + _picCounter.toString());
-    //_image = Image.network(_picUrl + _picCounter.toString())
+    //_picCounter is used to bypass the cache system of flutter,
+    //i.e. http://192.168.31.1/capture?_cb=1555932915322?1 and http://192.168.31.1/capture?_cb=1555932915322?42 can direct to the same destination.
     im.Image image = im.decodeImage(file.readAsBytesSync());
 
 
@@ -83,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         labels: "assets/yolov2_tiny.txt",
         numThreads: 1 // defaults to 1
     );
+    //load the tfLite model, cannot be deleted even the IDE said it was never used.
 
     Uint8List imageToByteListFloat32(
         im.Image image, int inputSize, double mean, double std) {
@@ -108,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
         blockSize: 32,        // defaults to 32
         numBoxesPerBlock: 5,  // defaults to 5
     );
+    //doing recognition with TensorFlow
 
     _detectedClass = "Cannot find any match";
     for(int i = 0; i < _supportedList.length; i++){
@@ -122,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return new VideoRoute(path: path(_detectedClass), detectedClass: _detectedClass,);//VideoRoute() is in videoRoute.dart
         })
     );
+    //Push a new route that shows the corresponding video and text
 
     setState(() {
       _textAppState = "";
@@ -193,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
   //this is called when capturing an image using the device's own camera.
+  //this is nearly the same with the _externalCameraSelection, you can check the comment above.
 
   @override
   Widget build(BuildContext context) {

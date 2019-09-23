@@ -34,7 +34,7 @@ class _VideoRouteState extends State<VideoRoute> {
       this route will be pop out of the route stack, i.e. return to the main route.
       */
       ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+        // Ensure the first frame is shown after the video is initialized.
         setState(() {});
       });
     _controller.play();
